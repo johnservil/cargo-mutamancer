@@ -179,6 +179,36 @@ the README once they are true:
 Also: tell the user how long a wait will be, whenever it is longer than a
 few seconds. That applies to us when reporting to Zooko, too.
 
+## Lessons from BLAKE3's known-mutant lists (October 26, 2026)
+
+BLAKE3 keeps a list per architecture of the mutants known to survive or
+to time out, each with its reason. Writing the AArch64 lists for the 0.8
+release went wrong in ways this tool must design out:
+
+- **Only the merged verdict is a verdict.** `check.py` printed every place
+  where the suite's clock stopped a test, before the model checker's
+  verdict was merged in. Those lines were built by hand into a list of
+  time-outs, and 27 mutants the model catches went on it as time-outs.
+  A tool prints intermediate signals as what they are, or not at all;
+  anything a person could copy into a record must be a final verdict.
+- **Never by hand what the tool can write.** The tool already wrote both
+  lists from the merged verdicts (`--write`), leaving new reasons blank.
+  Filling them by hand from another machine's list is where the error
+  came in. The tool writes every fact it holds, deterministically; a
+  person writes only what no machine knows.
+- **Every machine's outcome, kept side by side.** One mutant can be
+  caught on one machine, time out on a second and survive on a third
+  (the pool's wake mutants: a hang on x86-64, a survivor on AArch64,
+  where the schedules never met the missing wake). Each outcome is a
+  fact about the code; a record keyed by mutant, machine and judge (the
+  suite, the model) keeps all of them, and a disagreement is a finding
+  to report, never a choice to make.
+- **A record names only what exists.** Which mutants exist depends on the
+  source alone, so any machine can check every machine's list against
+  it without running anything (Devon, BLAKE3 #175: 18 stale rows from
+  older code, in a list only AArch64 runs read). Delete a row only when
+  its mutant no longer exists; keep the rest, whoever's machine wrote it.
+
 ## First, once BLAKE3 0.8 is released (Zooko, October 21, 2026)
 
 BLAKE3's mutation check (`tools/mutants/check.py`, on cargo-mutants and

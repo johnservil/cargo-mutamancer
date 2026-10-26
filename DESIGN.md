@@ -214,4 +214,7 @@ failure at once, the ones not yet imagined among them.
 | a commit bypassing the hook | CI, per commit or per push |
 | hangs | counter budgets, deadlock by state, retired instructions in assembly and C |
 | equivalent mutants in new code | named in the list with their reason: the main cost to "painless", to measure |
+| one mutant judged differently on two machines (caught, timed out, survived) | every outcome kept, keyed by machine and judge; the disagreement reported as a finding |
+| a list row naming a mutant the source no longer holds | checked against the source's mutants before any run, on any machine |
+| an intermediate signal read as a verdict | only merged verdicts are printed as verdicts, and lists are written by the tool, never by hand |
 | bugs no mutation operator models | outside the promise, stated |
