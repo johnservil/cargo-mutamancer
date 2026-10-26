@@ -209,6 +209,23 @@ release went wrong in ways this tool must design out:
   older code, in a list only AArch64 runs read). Delete a row only when
   its mutant no longer exists; keep the rest, whoever's machine wrote it.
 
+## A mutant that changes nothing, found at compile time (Zooko, October 26: a keeper)
+
+A mutant in code the target never compiles (`cfg` for another
+architecture, a CPU feature this build lacks) builds into the same
+machine code as the unmutated tree, and every test passes on it by
+construction: on BLAKE3's AArch64 list, about 240 survivors are code for
+x86-64, each run through the whole suite and each needing a reason
+written. The verdict needs no test: build the mutant, compare the
+executable code with the unmutated build's, and a mutant whose code is
+identical is "compiled out here", recorded beside its outcome on the
+machines that compile it. Compare the linked binaries' code sections
+(.text, and the read-only data the code reads), never the rlibs: a
+crate's metadata carries its source's hashes and spans, so an rlib
+differs whenever the source does. Deterministic, as the build is; it
+also finds equivalent mutants the optimizer erases (`1 << 0` made
+`1 >> 0`, a branch whose arms compile alike), and saves their test time.
+
 ## First, once BLAKE3 0.8 is released (Zooko, October 21, 2026)
 
 BLAKE3's mutation check (`tools/mutants/check.py`, on cargo-mutants and
